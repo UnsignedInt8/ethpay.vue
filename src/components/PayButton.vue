@@ -1,51 +1,96 @@
 <template>
-  <button class="__ethpay_button">
-    <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1">
-      <g id="icon/coin/eth" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
-        <g id="ethereum-1" transform="translate(4.301209, 0.000000)" fill-rule="nonzero">
-          <polygon
-            id="Path"
-            fill="#343434"
-            points="6.13812922 0 6.00405656 0.455703125 6.00405656 13.6791525 6.13812922 13.8129853 12.2763064 10.184725"
-          />
-          <polygon
-            id="Path"
-            fill="#8C8C8C"
-            points="6.13817719 0 0 10.184725 6.13817719 13.8130333 6.13817719 7.39476656"
-          />
-          <polygon
-            id="Path"
-            fill="#3C3C3B"
-            points="6.13812922 14.9752202 6.06257844 15.0673202 6.06257844 19.7778034 6.13812922 19.9984597 12.28 11.3487827"
-          />
-          <polygon
-            id="Path"
-            fill="#8C8C8C"
-            points="6.13817719 19.9984117 6.13817719 14.9751242 0 11.3486867"
-          />
-          <polygon
-            id="Path"
-            fill="#141414"
-            points="6.13812922 13.8129853 12.2762105 10.184773 6.13812922 7.39481453"
-          />
-          <polygon
-            id="Path"
-            fill="#393939"
-            points="0 10.184725 6.13808125 13.8129853 6.13808125 7.39476656"
-          />
+  <button class="__ethpay_button" @click="onClick" v-bind:title="title">
+    <span class="caption">{{caption}}</span>
+
+    <div class="icon">
+      <svg width="20px" height="20px" viewBox="0 0 20 20" version="1.1">
+        <g id="icon/coin/eth" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+          <g id="ethereum-1" transform="translate(4.301209, 0.000000)" fill-rule="nonzero">
+            <polygon
+              id="Path"
+              fill="#343434"
+              points="6.13812922 0 6.00405656 0.455703125 6.00405656 13.6791525 6.13812922 13.8129853 12.2763064 10.184725"
+            />
+            <polygon
+              id="Path"
+              fill="#8C8C8C"
+              points="6.13817719 0 0 10.184725 6.13817719 13.8130333 6.13817719 7.39476656"
+            />
+            <polygon
+              id="Path"
+              fill="#3C3C3B"
+              points="6.13812922 14.9752202 6.06257844 15.0673202 6.06257844 19.7778034 6.13812922 19.9984597 12.28 11.3487827"
+            />
+            <polygon
+              id="Path"
+              fill="#8C8C8C"
+              points="6.13817719 19.9984117 6.13817719 14.9751242 0 11.3486867"
+            />
+            <polygon
+              id="Path"
+              fill="#141414"
+              points="6.13812922 13.8129853 12.2762105 10.184773 6.13812922 7.39481453"
+            />
+            <polygon
+              id="Path"
+              fill="#393939"
+              points="0 10.184725 6.13808125 13.8129853 6.13808125 7.39476656"
+            />
+          </g>
         </g>
-      </g>
-    </svg>
+      </svg>
+    </div>
+
     <span>Pay</span>
   </button>
 </template>
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
+import { Metamask, Payment, Contracts } from "ethpay.core";
+import * as ethers from "ethers";
 
 @Component
 export default class PayButton extends Vue {
-  @Prop() caption?: string;
+  @Prop(String) caption?: string;
+  @Prop(String) title?: string;
+  @Prop(String) to!: string;
+  @Prop({ default: 0, type: [String, Number] }) value!: string | number;
+  @Prop({ default: "eth", type: String }) currency!: string;
+
+  onClick = async () => {
+    if (!Metamask.hasWeb3()) {
+      return;
+    }
+
+    let [from] = await Metamask.enable();
+    if (!from) return;
+
+    let hash: string;
+
+    if (this.currency === "eth") {
+      hash = await Metamask.sendTransaction({
+        to: this.to,
+        from,
+        gas: "0x5208",
+        value: ethers.utils.parseEther(`${this.value || 0}`).toHexString()
+      });
+    } else {
+      const contract = Contracts[this.currency];
+      hash = await Metamask.sendTransaction({
+        to: contract.addr,
+        from,
+        gas: "0x186A0",
+        value: "0x00",
+        data: Payment.buildErc20TransferABI(
+          this.to,
+          ethers.utils
+            .parseUnits(`${this.value || 0}`, contract.decimals)
+            .toHexString()
+        )
+      });
+    }
+  };
 }
 </script>
 
@@ -61,8 +106,9 @@ export default class PayButton extends Vue {
   display: flex;
   justify-content: center;
   align-items: center;
-  font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell",
-    "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+  font-family: "PingFang SC", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans",
+    "Helvetica Neue", sans-serif;
   transition: all 0.5s;
 
   .caption {
@@ -153,5 +199,4 @@ export default class PayButton extends Vue {
 .__ethpay_tooltip {
   font-size: 12px;
 }
-
 </style>
