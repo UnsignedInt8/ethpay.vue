@@ -1,6 +1,6 @@
 # ETHPay for Vue.js
 
-A Button to the Web3, Demo is [here](https://ethpay.now.sh/demo1)
+A Button to the Web3, [Demo](https://ethpay.now.sh/demo1)
 
 ## Quick Start
 
@@ -18,7 +18,7 @@ npm i ethpay.vue
     <ETHPay
       caption="Try with"
       to="0x4ED9232873D1a0cac85d92497a5e9FA312Cfe30d"
-      title="Try with ETH Pay"
+      title="Try with"
       value="0.1"
     />
   </div>
