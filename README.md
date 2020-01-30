@@ -45,7 +45,6 @@ export default class App extends Vue {}
 | value | The amount of currency | Number | Yes |
 | caption | Button caption | String | No |
 | title | HTML Title | String | No |
-| mode | Dark mode or light mode | `'black'/'light'` | No |
 | data | The data append to Tx | String, starts with '0x' | No |
 
 ## Typescript
