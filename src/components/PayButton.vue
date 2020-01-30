@@ -47,7 +47,7 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from "vue-property-decorator";
-import { Metamask, Payment, Contracts } from "ethpay.core";
+import { Metamask, Payment } from "ethpay.core";
 import * as ethers from "ethers";
 
 @Component
@@ -56,40 +56,14 @@ export default class PayButton extends Vue {
   @Prop(String) title?: string;
   @Prop(String) to!: string;
   @Prop({ default: 0, type: [String, Number] }) value!: string | number;
-  @Prop({ default: "eth", type: String }) currency!: string;
+  @Prop({ default: "eth", type: String }) currency!: 'eth';
 
   onClick = async () => {
-    if (!Metamask.hasWeb3()) {
-      return;
-    }
-
-    let [from] = await Metamask.enable();
-    if (!from) return;
-
-    let hash: string;
-
-    if (this.currency === "eth") {
-      hash = await Metamask.sendTransaction({
-        to: this.to,
-        from,
-        gas: "0x5208",
-        value: ethers.utils.parseEther(`${this.value || 0}`).toHexString()
-      });
-    } else {
-      const contract = Contracts[this.currency];
-      hash = await Metamask.sendTransaction({
-        to: contract.addr,
-        from,
-        gas: "0x186A0",
-        value: "0x00",
-        data: Payment.buildErc20TransferABI(
-          this.to,
-          ethers.utils
-            .parseUnits(`${this.value || 0}`, contract.decimals)
-            .toHexString()
-        )
-      });
-    }
+    await Payment.send({
+      to: this.to,
+      value: this.value,
+      currency: this.currency
+    });
   };
 }
 </script>
