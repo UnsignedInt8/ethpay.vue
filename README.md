@@ -18,7 +18,7 @@ npm i ethpay.vue
     <ETHPay
       caption="Try with"
       to="0x4ED9232873D1a0cac85d92497a5e9FA312Cfe30d"
-      title="Try with"
+      title="Try with ETH Pay"
       value="0.1"
     />
   </div>
