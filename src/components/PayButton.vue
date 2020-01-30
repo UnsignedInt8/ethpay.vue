@@ -56,13 +56,15 @@ export default class PayButton extends Vue {
   @Prop(String) title?: string;
   @Prop(String) to!: string;
   @Prop({ default: 0, type: [String, Number] }) value!: string | number;
-  @Prop({ default: "eth", type: String }) currency!: 'eth';
+  @Prop({ default: "eth", type: String }) currency!: "eth";
+  @Prop(String) data?: string;
 
   onClick = async () => {
     await Payment.send({
       to: this.to,
       value: this.value,
-      currency: this.currency
+      currency: this.currency,
+      data: this.data,
     });
   };
 }
