@@ -1,3 +1,5 @@
+// https://medium.com/justfrontendthings/how-to-create-and-publish-your-own-vuejs-component-library-on-npm-using-vue-cli-28e60943eed3
+
 <template>
   <button class="__ethpay_button" @click="onClick" v-bind:title="title">
     <span class="caption">{{caption}}</span>
